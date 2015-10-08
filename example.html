@@ -33,6 +33,7 @@
          class="video-js vjs-default-skin"
          height="300"
          width="600"
+         muted
          controls>
     <p>
       Your browser doesn't support video. Please <a href="http://browsehappy.com/">upgrade your browser</a> to see the example.
@@ -44,7 +45,7 @@
   <script src="lib/videojs-metrics.js"></script>
   <script>
     // fire up the plugin
-    videojs('video').metrics();
+    videojs('video',{muted:true}).metrics();
   </script>
 </body>
 </html>
