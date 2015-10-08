@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "author": "benjipott",
   "description": "A revolutionary plugin for video.js",
+  "main": "dist/videojs-metrics.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Afrostream/videojs-metrics.git"
+  },
   "license": "Apache-2.0",
   "keywords": [
     "videojs",
