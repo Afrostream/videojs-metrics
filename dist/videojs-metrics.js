@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-08
+/*! videojs-metrics - v0.0.0 - 2015-10-14
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -13,7 +13,7 @@
       'responseType': 'json',
       'timeout': 1000,
       'url': '//stats.afrostream.tv/api/v1/events',
-      'trackEvents': ['firstplay', 'ended', 'waiting', 'error', 'bitratechange', 'dispose']
+      'trackEvents': ['firstplay', 'ended', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
     },
     metrics, getBrowser;
   /**
@@ -111,6 +111,9 @@
         case 'waiting':
           data.type = 'buffering';
           break;
+        case 'bandwidthIncrease':
+        case 'bandwidthDecrease':
+          break;
         default:
           break;
       }
@@ -160,6 +163,20 @@
       evt.relative_url = path[2];
       evt.timeout = false;
       evt.frames_dropped = 0;
+      //bandwidthValue: bandwidthValue,
+      //bitrateIndexValue: bitrateIndexValue,
+      //pendingIndex: (pendingValue !== bitrateIndexValue) ? '(-> ' + (pendingValue) + ')' : '',
+      //numBitratesValue: numBitratesValue,
+      //bufferLengthValue: bufferLengthValue,
+      //droppedFramesValue: droppedFramesValue,
+      //movingLatency: movingLatency,
+      //movingDownload: movingDownload,
+      //movingRatio: movingRatio,
+      //requestsQueue: requestsQueue
+      var videoMetrics = player.techGet('getPlaybackVideoData');
+      var audioMetrics = player.techGet('getPlaybackAudioData');
+      evt.video_bitrate = videoMetrics.bandwidthValue || 0;
+      evt.audio_bitrate = audioMetrics.bandwidthValue || 0;
       var pickedData = pick(evt, getRequiredKeys(evt.type));
 
       xhr(settings, pickedData);
