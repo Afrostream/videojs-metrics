@@ -159,7 +159,7 @@
       evt.web_browser_version = browserInfo.web_browser_version;
       evt.resolution_size = screen.width + 'x' + screen.height;
       evt.flash_version = videojs.Flash.version().join(',');
-      evt.html5_video = player.techName === 'html5';
+      evt.html5_video = player.techName === 'Html5';
       evt.relative_url = path[2];
       evt.timeout = false;
       evt.frames_dropped = 0;
