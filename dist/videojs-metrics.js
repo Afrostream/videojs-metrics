@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-14
+/*! videojs-metrics - v0.0.0 - 2015-10-15
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -163,20 +163,29 @@
       evt.relative_url = path[2];
       evt.timeout = false;
       evt.frames_dropped = 0;
-      //bandwidthValue: bandwidthValue,
-      //bitrateIndexValue: bitrateIndexValue,
-      //pendingIndex: (pendingValue !== bitrateIndexValue) ? '(-> ' + (pendingValue) + ')' : '',
-      //numBitratesValue: numBitratesValue,
-      //bufferLengthValue: bufferLengthValue,
-      //droppedFramesValue: droppedFramesValue,
-      //movingLatency: movingLatency,
-      //movingDownload: movingDownload,
-      //movingRatio: movingRatio,
-      //requestsQueue: requestsQueue
-      var videoMetrics = player.techGet('getPlaybackVideoData');
-      var audioMetrics = player.techGet('getPlaybackAudioData');
-      evt.video_bitrate = videoMetrics.bandwidthValue || 0;
-      evt.audio_bitrate = audioMetrics.bandwidthValue || 0;
+      //=== BITDASH
+      //bandwidth
+      //bitrateIndex
+      //pendingIndex
+      //numBitrates
+      //bufferLength
+      //droppedFrames
+      //movingLatency
+      //movingDownload
+      //movingRatio
+      //requestsQueue
+      //=== CASTLAB
+      // ???
+      var metrics = player.techGet('getPlaybackStatistics') || {
+          video: {
+            bandwidth: 0
+          },
+          audio: {
+            bandwidth: 0
+          }
+        };
+      evt.video_bitrate = metrics.video.bandwidth || 0;
+      evt.audio_bitrate = metrics.audio.bandwidth || 0;
       var pickedData = pick(evt, getRequiredKeys(evt.type));
 
       xhr(settings, pickedData);
