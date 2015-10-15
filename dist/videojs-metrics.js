@@ -176,14 +176,7 @@
       //requestsQueue
       //=== CASTLAB
       // ???
-      var metrics = player.techGet('getPlaybackStatistics') || {
-          video: {
-            bandwidth: 0
-          },
-          audio: {
-            bandwidth: 0
-          }
-        };
+      var metrics = player.techGet('getPlaybackStatistics');
       evt.video_bitrate = metrics.video.bandwidth || 0;
       evt.audio_bitrate = metrics.audio.bandwidth || 0;
       var pickedData = pick(evt, getRequiredKeys(evt.type));
@@ -294,7 +287,21 @@
 
     setupTriggers();
   };
-
+  /**
+   * Get default metrix statistics object
+   * @returns {{video: {bandwidth: number}, audio: {bandwidth: number}}}
+   */
+  /*jshint sub:true*/
+  videojs.MediaTechController.prototype['getPlaybackStatistics'] = function () {
+    return {
+      video: {
+        bandwidth: 0
+      },
+      audio: {
+        bandwidth: 0
+      }
+    };
+  };
   // register the plugin
   videojs.plugin('metrics', metrics);
 })(window, window.videojs);
