@@ -25,6 +25,7 @@
     var browser = null;
     var version = null;
     var os = null;
+    var osVersion = null;
     var parseUserAgent, prepareData, renameOsx, cutSafariVersion;
 
     parseUserAgent = function () {
@@ -43,12 +44,15 @@
       if (osParts && osParts.length > 1) {
         os = osParts[1];
       }
+
+      osVersion = navigator.oscpu || navigator.appName;
     };
 
     prepareData = function () {
       data.browser = browser;
       data.version = parseInt(version, 10) || null;
       data.os = os;
+      data.osVersion = osVersion;
     };
 
     renameOsx = function () {
@@ -154,9 +158,9 @@
       evt.user_id = settings.user_id;
       evt.fqdn = path[1];
       evt.os = browserInfo.os;
-      evt.os_version = browserInfo.version.toString();
+      evt.os_version = browserInfo.osVersion.toString();
       evt.web_browser = browserInfo.browser;
-      evt.web_browser_version = browserInfo.web_browser_version;
+      evt.web_browser_version = browserInfo.version.toString();
       evt.resolution_size = screen.width + 'x' + screen.height;
       evt.flash_version = videojs.Flash.version().join(',');
       evt.html5_video = player.techName === 'Html5';
@@ -295,10 +299,10 @@
   videojs.MediaTechController.prototype['getPlaybackStatistics'] = function () {
     return {
       video: {
-        bandwidth: 0
+        bandwidth: 1
       },
       audio: {
-        bandwidth: 0
+        bandwidth: 1
       }
     };
   };
