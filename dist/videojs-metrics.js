@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-15
+/*! videojs-metrics - v0.0.0 - 2015-10-16
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -13,7 +13,7 @@
       'responseType': 'json',
       'timeout': 1000,
       'url': '//stats.afrostream.tv/api/v1/events',
-      'trackEvents': ['firstplay', 'ended', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
+      'trackEvents': ['firstplay', 'ended', 'dispose', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
     },
     metrics, getBrowser;
   /**
@@ -106,6 +106,12 @@
       };
 
       switch (data.type) {
+        case 'error':
+          //when error notify api player stopped
+          var MergeData = videojs.util.mergeOptions(data, {type: 'stop'});
+          notify(MergeData);
+          break;
+        case 'dispose':
         case 'ended':
           data.type = 'stop';
           break;
