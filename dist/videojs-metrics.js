@@ -87,7 +87,7 @@
     'start': ['os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
     'stop': ['timeout', 'frames_dropped']
   };
-
+  var oldType = null;
   /**
    * Initialize the plugin.
    * @param options (optional) {object} configuration for the plugin
@@ -103,7 +103,7 @@
     eventHandler = function (evt) {
       var data = {
         type: evt.type
-      };
+      }, skipped = false;
 
       switch (data.type) {
         case 'error':
@@ -113,6 +113,9 @@
           break;
         case 'dispose':
         case 'ended':
+          if (data.type === oldType) {
+            skipped = true;
+          }
           data.type = 'stop';
           break;
         case 'firstplay':
@@ -126,6 +129,12 @@
           break;
         default:
           break;
+      }
+
+      oldType = data.type;
+
+      if (skipped) {
+        return;
       }
 
       notify(data);
