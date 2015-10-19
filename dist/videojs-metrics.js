@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-16
+/*! videojs-metrics - v0.0.0 - 2015-10-19
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -107,9 +107,6 @@
 
       switch (data.type) {
         case 'error':
-          //when error notify api player stopped
-          var MergeData = videojs.util.mergeOptions(data, {type: 'stop'});
-          notify(MergeData);
           break;
         case 'dispose':
         case 'ended':
@@ -195,12 +192,16 @@
       //requestsQueue
       //=== CASTLAB
       // ???
-      var metrics = player.techGet('getPlaybackStatistics');
-      evt.video_bitrate = metrics.video.bandwidth || 0;
-      evt.audio_bitrate = metrics.audio.bandwidth || 0;
-      var pickedData = pick(evt, getRequiredKeys(evt.type));
-
-      xhr(settings, pickedData);
+      try {
+        var metrics = player.techGet('getPlaybackStatistics');
+        evt.video_bitrate = metrics.video.bandwidth || 0;
+        evt.audio_bitrate = metrics.audio.bandwidth || 0;
+        var pickedData = pick(evt, getRequiredKeys(evt.type));
+        xhr(settings, pickedData);
+      }
+      catch (e) {
+        videojs.log(e);
+      }
     };
 
     xhr = function (url, data, callback) {
