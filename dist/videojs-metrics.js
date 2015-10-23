@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-22
+/*! videojs-metrics - v0.0.0 - 2015-10-23
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -12,36 +12,20 @@
    */
   videojs.Metrics = videojs.Component.extend({
     init: function (player, options) {
-      options.user_id = options.user_id || 666;
       videojs.Component.call(this, player, options);
       this.setupTriggers();
       this.browserInfo = videojs.Metrics.getBrowser();
-      player.ready(function () {
-        videojs.on(player.mediaPlayer, MediaPlayer.events.STREAM_INITIALIZED,
-          videojs.bind(this, this.onInitialized));
-        player.on(MediaPlayer.events.STREAM_SWITCH_STARTED,
-          videojs.bind(this, this.onInitialized));
-        player.on(MediaPlayer.events.STREAM_SWITCH_COMPLETED,
-          videojs.bind(this, this.onInitialized));
-      });
     }
   });
 
-  videojs.Metrics.prototype.onInitialized = function (manifest, err) {
-    if (err) {
-      this.player().error(err);
-    }
-    var bitrates = this.player().mediaPlayer.getBitrateInfoListFor('video');
-  };
-
   videojs.Metrics.prototype.options_ = {
     'option': true,
-    'user_id': '',
+    'user_id': 666,
     'method': 'POST',
     'responseType': 'json',
     'timeout': 1000,
     'url': '//stats.afrostream.tv/api/v1/events',
-    'trackEvents': ['ping', 'firstplay', 'ended', 'dispose', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
+    'trackEvents': ['loadstart', 'ping', 'firstplay', 'ended', 'dispose', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
   };
   /**
    * Get browser infos
@@ -107,22 +91,40 @@
 
   videojs.Metrics.INTERVAL_PING = 60000;
 
-  videojs.Metrics.BASE_KEYS = ['user_id', 'type'];
+  videojs.Metrics.BASE_KEYS = ['user_id', 'type', 'fqdn'];
+
+  videojs.Metrics.METRICS_DATA = {
+    bandwidth: -1,
+    bitrateIndex: 0,
+    pendingIndex: '',
+    numBitrates: 0,
+    bufferLength: 0,
+    droppedFrames: 0,
+    movingLatency: 0,
+    movingDownload: 0,
+    movingRatio: 0,
+    requestsQueue: 0
+  };
+
+  videojs.Metrics.prototype.metrics_ = {
+    video: videojs.util.mergeOptions({}, videojs.Metrics.METRICS_DATA),
+    audio: videojs.util.mergeOptions({}, videojs.Metrics.METRICS_DATA)
+  };
 
   videojs.Metrics.REQUIRED_KEY = {
     'bandwidthIncrease': ['video_bitrate', 'audio_bitrate'],
     'bandwidthDecrease': ['video_bitrate', 'audio_bitrate'],
-    'ping': ['fqdn'],
+    'ping': [],
     'buffering': [],
     'error': ['number', 'message'],
-    'start': ['video_bitrate', 'audio_bitrate', 'fqdn', 'os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
+    'start': ['video_bitrate', 'audio_bitrate', 'os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
     'stop': ['timeout', 'frames_dropped']
   };
 
   videojs.Metrics.URL_MATCH = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*(.+)*/gi;
 
+  videojs.Metrics.prototype.pathUrl = '';
   videojs.Metrics.prototype.oldType = null;
-
   videojs.Metrics.prototype.intervalPing = 0;
   videojs.Metrics.prototype.browserInfo = {};
 
@@ -140,6 +142,11 @@
           skipped = true;
         }
         data.type = 'stop';
+        break;
+      case 'loadstart':
+        var source = this.player().manifestUrl || this.player().currentSrc();
+        this.pathUrl = videojs.Metrics.URL_MATCH.exec(source);
+        skipped = true;
         break;
       case 'firstplay':
         data.type = 'start';
@@ -170,8 +177,9 @@
   };
 
   videojs.Metrics.prototype.setupTriggers = function () {
-    for (var i = this.options().trackEvents.length - 1; i >= 0; i--) {
-      this.player().on(this.options().trackEvents[i], videojs.bind(this, this.eventHandler));
+    var events = this.options_.trackEvents;
+    for (var i = events.length - 1; i >= 0; i--) {
+      this.player().on(events[i], videojs.bind(this, this.eventHandler));
     }
   };
 
@@ -196,12 +204,12 @@
     return videojs.Metrics.BASE_KEYS.concat(videojs.Metrics.REQUIRED_KEY[type] || []);
   };
 
+
   videojs.Metrics.prototype.notify = function (evt) {
-    var player = this.player(),
-      path = videojs.Metrics.URL_MATCH.exec(player.manifestUrl || player.currentSrc());
+    var player = this.player();
     // Merge with default options
     evt.user_id = this.options().user_id;
-    evt.fqdn = path[1];
+    evt.fqdn = this.pathUrl[1];
     evt.os = this.browserInfo.os;
     evt.os_version = this.browserInfo.osVersion.toString();
     evt.web_browser = this.browserInfo.browser;
@@ -209,7 +217,7 @@
     evt.resolution_size = screen.width + 'x' + screen.height;
     evt.flash_version = videojs.Flash.version().join(',');
     evt.html5_video = player.techName === 'Html5';
-    evt.relative_url = path[2];
+    evt.relative_url = this.pathUrl[2];
     evt.timeout = false;
     evt.frames_dropped = 0;
     //=== BITDASH
@@ -227,8 +235,9 @@
     // ???
     try {
       var metrics = player.techGet('getPlaybackStatistics');
-      evt.video_bitrate = metrics.video.bandwidth || 0;
-      evt.audio_bitrate = metrics.audio.bandwidth || 0;
+      this.metrics_ = videojs.util.mergeOptions(this.metrics_, metrics);
+      evt.video_bitrate = this.metrics_.video.bandwidth || 0;
+      evt.audio_bitrate = this.metrics_.audio.bandwidth || 0;
       var pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
       this.xhr(this.options(), pickedData);
     }
@@ -338,21 +347,6 @@
     return request;
   };
 
-  /**
-   * Get default metrix statistics object
-   * @returns {{video: {bandwidth: number}, audio: {bandwidth: number}}}
-   */
-  /*jshint sub:true*/
-  videojs.MediaTechController.prototype['getPlaybackStatistics'] = function () {
-    return {
-      video: {
-        bandwidth: -1
-      },
-      audio: {
-        bandwidth: -1
-      }
-    };
-  };
   //// register the plugin
   videojs.options.children.metrics = {};
   //videojs.plugin('metrics', videojs.Metrics);
