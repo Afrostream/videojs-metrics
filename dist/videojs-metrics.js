@@ -13,8 +13,10 @@
   videojs.Metrics = videojs.Component.extend({
     init: function (player, options) {
       videojs.Component.call(this, player, options);
-      this.setupTriggers();
       this.browserInfo = videojs.Metrics.getBrowser();
+      var source = this.player().manifestUrl || this.player().currentSrc();
+      this.pathUrl = videojs.Metrics.URL_MATCH.exec(source);
+      this.setupTriggers();
     }
   });
 
@@ -144,8 +146,6 @@
         data.type = 'stop';
         break;
       case 'loadstart':
-        var source = this.player().manifestUrl || this.player().currentSrc();
-        this.pathUrl = videojs.Metrics.URL_MATCH.exec(source);
         skipped = true;
         break;
       case 'firstplay':
