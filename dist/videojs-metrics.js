@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-19
+/*! videojs-metrics - v0.0.0 - 2015-10-23
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -6,21 +6,32 @@
 (function (window, videojs) {
   'use strict';
 
-  var defaults = {
-      'option': true,
-      'user_id': '',
-      'method': 'POST',
-      'responseType': 'json',
-      'timeout': 1000,
-      'url': '//stats.afrostream.tv/api/v1/events',
-      'trackEvents': ['firstplay', 'ended', 'dispose', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
-    },
-    metrics, getBrowser;
+  /**
+   * Initialize the plugin.
+   * @param options (optional) {object} configuration for the plugin
+   */
+  videojs.Metrics = videojs.Component.extend({
+    init: function (player, options) {
+      videojs.Component.call(this, player, options);
+      this.setupTriggers();
+      this.browserInfo = videojs.Metrics.getBrowser();
+    }
+  });
+
+  videojs.Metrics.prototype.options_ = {
+    'option': true,
+    'user_id': 666,
+    'method': 'POST',
+    'responseType': 'json',
+    'timeout': 1000,
+    'url': '//stats.afrostream.tv/api/v1/events',
+    'trackEvents': ['loadstart', 'ping', 'firstplay', 'ended', 'dispose', 'waiting', 'error', 'bandwidthIncrease', 'bandwidthDecrease', 'dispose']
+  };
   /**
    * Get browser infos
    * @returns {{}}
    */
-  getBrowser = function () {
+  videojs.Metrics.getBrowser = function () {
     var data = {};
     var browser = null;
     var version = null;
@@ -78,250 +89,266 @@
     return data;
   };
 
-  var BASE_KEYS = ['user_id', 'type', 'fqdn'];
-  var REQUIRED_KEY = {
+  videojs.Metrics.INTERVAL_PING = 60000;
+
+  videojs.Metrics.BASE_KEYS = ['user_id', 'type', 'fqdn'];
+
+  videojs.Metrics.METRICS_DATA = {
+    bandwidth: -1,
+    bitrateIndex: 0,
+    pendingIndex: '',
+    numBitrates: 0,
+    bufferLength: 0,
+    droppedFrames: 0,
+    movingLatency: 0,
+    movingDownload: 0,
+    movingRatio: 0,
+    requestsQueue: 0
+  };
+
+  videojs.Metrics.prototype.metrics_ = {
+    video: videojs.util.mergeOptions({}, videojs.Metrics.METRICS_DATA),
+    audio: videojs.util.mergeOptions({}, videojs.Metrics.METRICS_DATA)
+  };
+
+  videojs.Metrics.REQUIRED_KEY = {
     'bandwidthIncrease': ['video_bitrate', 'audio_bitrate'],
     'bandwidthDecrease': ['video_bitrate', 'audio_bitrate'],
+    'ping': [],
     'buffering': [],
     'error': ['number', 'message'],
-    'start': ['os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
+    'start': ['video_bitrate', 'audio_bitrate', 'os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
     'stop': ['timeout', 'frames_dropped']
   };
-  var oldType = null;
-  /**
-   * Initialize the plugin.
-   * @param options (optional) {object} configuration for the plugin
-   */
-  metrics = function (options) {
-    var settings = videojs.util.mergeOptions(defaults, options),
-      player = this, setupTriggers, eventHandler, notify, xhr, pick, getRequiredKeys, browserInfo = getBrowser(),
-      urlMatch = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*(.+)*/gi,
-      path = urlMatch.exec(player.currentSrc());
 
-    settings.user_id = settings.user_id || 666;
+  videojs.Metrics.URL_MATCH = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*(.+)*/gi;
 
-    eventHandler = function (evt) {
-      var data = {
-        type: evt.type
-      }, skipped = false;
+  videojs.Metrics.prototype.pathUrl = '';
+  videojs.Metrics.prototype.oldType = null;
+  videojs.Metrics.prototype.intervalPing = 0;
+  videojs.Metrics.prototype.browserInfo = {};
 
-      switch (data.type) {
-        case 'error':
-          break;
-        case 'dispose':
-        case 'ended':
-          if (data.type === oldType) {
-            skipped = true;
-          }
-          data.type = 'stop';
-          break;
-        case 'firstplay':
-          data.type = 'start';
-          break;
-        case 'waiting':
-          data.type = 'buffering';
-          break;
-        case 'bandwidthIncrease':
-        case 'bandwidthDecrease':
-          break;
-        default:
-          break;
-      }
+  videojs.Metrics.prototype.eventHandler = function (evt) {
+    var data = {
+      type: evt.type
+    }, skipped = false;
 
-      oldType = data.type;
+    switch (data.type) {
+      case 'error':
+        break;
+      case 'dispose':
+      case 'ended':
+        if (data.type === this.oldType) {
+          skipped = true;
+        }
+        data.type = 'stop';
+        break;
+      case 'loadstart':
+        var source = this.player().manifestUrl || this.player().currentSrc();
+        this.pathUrl = videojs.Metrics.URL_MATCH.exec(source);
+        skipped = true;
+        break;
+      case 'firstplay':
+        data.type = 'start';
+        this.intervalPing = this.setInterval(this.onPing, videojs.Metrics.INTERVAL_PING);
+        break;
+      case 'waiting':
+        data.type = 'buffering';
+        break;
+      case 'bandwidthIncrease':
+      case 'bandwidthDecrease':
+        break;
+      default:
+        break;
+    }
 
-      if (skipped) {
+    this.oldType = data.type;
+
+    if (skipped) {
+      return;
+    }
+
+    this.notify(data);
+
+  };
+
+  videojs.Metrics.prototype.onPing = function () {
+    this.player().trigger('ping');
+  };
+
+  videojs.Metrics.prototype.setupTriggers = function () {
+    var events = this.options_.trackEvents;
+    for (var i = events.length - 1; i >= 0; i--) {
+      this.player().on(events[i], videojs.bind(this, this.eventHandler));
+    }
+  };
+
+  videojs.Metrics.pick = function (obj, list, context) {
+    var result = {};
+
+    if (typeof list === 'string') {
+      list = [list];
+    }
+
+    Object.keys(obj)
+      .forEach(function (key) {
+        if (list.indexOf(key) > -1) {
+          result[key] = obj[key];
+        }
+      }, context);
+
+    return result;
+  };
+
+  videojs.Metrics.prototype.getRequiredKeys = function (type) {
+    return videojs.Metrics.BASE_KEYS.concat(videojs.Metrics.REQUIRED_KEY[type] || []);
+  };
+
+
+  videojs.Metrics.prototype.notify = function (evt) {
+    var player = this.player();
+    // Merge with default options
+    evt.user_id = this.options().user_id;
+    evt.fqdn = this.pathUrl[1];
+    evt.os = this.browserInfo.os;
+    evt.os_version = this.browserInfo.osVersion.toString();
+    evt.web_browser = this.browserInfo.browser;
+    evt.web_browser_version = this.browserInfo.version.toString();
+    evt.resolution_size = screen.width + 'x' + screen.height;
+    evt.flash_version = videojs.Flash.version().join(',');
+    evt.html5_video = player.techName === 'Html5';
+    evt.relative_url = this.pathUrl[2];
+    evt.timeout = false;
+    evt.frames_dropped = 0;
+    //=== BITDASH
+    //bandwidth
+    //bitrateIndex
+    //pendingIndex
+    //numBitrates
+    //bufferLength
+    //droppedFrames
+    //movingLatency
+    //movingDownload
+    //movingRatio
+    //requestsQueue
+    //=== CASTLAB
+    // ???
+    try {
+      var metrics = player.techGet('getPlaybackStatistics');
+      this.metrics_ = videojs.util.mergeOptions(this.metrics_, metrics);
+      evt.video_bitrate = this.metrics_.video.bandwidth || 0;
+      evt.audio_bitrate = this.metrics_.audio.bandwidth || 0;
+      var pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
+      this.xhr(this.options(), pickedData);
+    }
+    catch (e) {
+      videojs.log(e);
+    }
+  };
+
+  videojs.Metrics.prototype.xhr = function (url, data, callback) {
+    var
+      options = {
+        method: 'GET',
+        timeout: 45 * 1000
+      },
+      request,
+      abortTimeout;
+
+    if (typeof callback !== 'function') {
+      callback = function () {
+      };
+    }
+
+    if (typeof url === 'object') {
+      options = videojs.util.mergeOptions(options, url);
+      url = options.url;
+    }
+
+    var XHR = window.XMLHttpRequest;
+
+    if (typeof XHR === 'undefined') {
+      // Shim XMLHttpRequest for older IEs
+      XHR = function () {
+        try {
+          return new window.ActiveXObject('Msxml2.XMLHTTP.6.0');
+        } catch (e) {
+        }
+        try {
+          return new window.ActiveXObject('Msxml2.XMLHTTP.3.0');
+        } catch (f) {
+        }
+        try {
+          return new window.ActiveXObject('Msxml2.XMLHTTP');
+        } catch (g) {
+        }
+        throw new Error('This browser does not support XMLHttpRequest.');
+      };
+    }
+
+    request = new XHR();
+    request.open(options.method, url);
+    request.url = url;
+    request.requestTime = new Date().getTime();
+    //request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    if (options.responseType) {
+      request.responseType = options.responseType;
+    }
+    if (options.withCredentials) {
+      request.withCredentials = true;
+    }
+    if (options.timeout) {
+      abortTimeout = window.setTimeout(function () {
+        if (request.readyState !== 4) {
+          request.timedout = true;
+          request.abort();
+        }
+      }, options.timeout);
+    }
+
+    request.onreadystatechange = function () {
+      // wait until the request completes
+      if (this.readyState !== 4) {
         return;
       }
 
-      notify(data);
+      // clear outstanding timeouts
+      window.clearTimeout(abortTimeout);
 
+      // request timeout
+      if (request.timedout) {
+        return callback.call(this, 'timeout', url);
+      }
+
+      // request aborted or errored
+      if (this.status >= 400 || this.status === 0) {
+        return callback.call(this, true, url);
+      }
+
+      if (this.response) {
+        this.responseTime = new Date().getTime();
+        this.roundTripTime = this.responseTime - this.requestTime;
+        this.bytesReceived = this.response.byteLength || this.response.length;
+        this.bandwidth = Math.floor((this.bytesReceived / this.roundTripTime) * 8 * 1000);
+      }
+
+      return callback.call(this, false, url);
     };
 
-    setupTriggers = function () {
-      for (var i = settings.trackEvents.length - 1; i >= 0; i--) {
-        player.on(settings.trackEvents[i], videojs.bind(this, eventHandler));
+    var queryString = '';
+    if (typeof data === 'object') {
+      for (var paramName in data) {
+        queryString += (queryString.length === 0 ? '' : '&') + paramName + '=' + encodeURIComponent(data[paramName]);
       }
-    };
+    }
 
-    pick = function (obj, list, context) {
-      var result = {};
-
-      if (typeof list === 'string') {
-        list = [list];
-      }
-
-      Object.keys(obj)
-        .forEach(function (key) {
-          if (list.indexOf(key) > -1) {
-            result[key] = obj[key];
-          }
-        }, context);
-
-      return result;
-    };
-
-    getRequiredKeys = function (type) {
-      return BASE_KEYS.concat(REQUIRED_KEY[type] || []);
-    };
-
-    notify = function (evt) {
-      // Merge with default options
-      evt.user_id = settings.user_id;
-      evt.fqdn = path[1];
-      evt.os = browserInfo.os;
-      evt.os_version = browserInfo.osVersion.toString();
-      evt.web_browser = browserInfo.browser;
-      evt.web_browser_version = browserInfo.version.toString();
-      evt.resolution_size = screen.width + 'x' + screen.height;
-      evt.flash_version = videojs.Flash.version().join(',');
-      evt.html5_video = player.techName === 'Html5';
-      evt.relative_url = path[2];
-      evt.timeout = false;
-      evt.frames_dropped = 0;
-      //=== BITDASH
-      //bandwidth
-      //bitrateIndex
-      //pendingIndex
-      //numBitrates
-      //bufferLength
-      //droppedFrames
-      //movingLatency
-      //movingDownload
-      //movingRatio
-      //requestsQueue
-      //=== CASTLAB
-      // ???
-      try {
-        var metrics = player.techGet('getPlaybackStatistics');
-        evt.video_bitrate = metrics.video.bandwidth || 0;
-        evt.audio_bitrate = metrics.audio.bandwidth || 0;
-        var pickedData = pick(evt, getRequiredKeys(evt.type));
-        xhr(settings, pickedData);
-      }
-      catch (e) {
-        videojs.log(e);
-      }
-    };
-
-    xhr = function (url, data, callback) {
-      var
-        options = {
-          method: 'GET',
-          timeout: 45 * 1000
-        },
-        request,
-        abortTimeout;
-
-      if (typeof callback !== 'function') {
-        callback = function () {
-        };
-      }
-
-      if (typeof url === 'object') {
-        options = videojs.util.mergeOptions(options, url);
-        url = options.url;
-      }
-
-      var XHR = window.XMLHttpRequest;
-
-      if (typeof XHR === 'undefined') {
-        // Shim XMLHttpRequest for older IEs
-        XHR = function () {
-          try {
-            return new window.ActiveXObject('Msxml2.XMLHTTP.6.0');
-          } catch (e) {
-          }
-          try {
-            return new window.ActiveXObject('Msxml2.XMLHTTP.3.0');
-          } catch (f) {
-          }
-          try {
-            return new window.ActiveXObject('Msxml2.XMLHTTP');
-          } catch (g) {
-          }
-          throw new Error('This browser does not support XMLHttpRequest.');
-        };
-      }
-
-      request = new XHR();
-      request.open(options.method, url);
-      request.url = url;
-      request.requestTime = new Date().getTime();
-      //request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-      request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      if (options.responseType) {
-        request.responseType = options.responseType;
-      }
-      if (options.withCredentials) {
-        request.withCredentials = true;
-      }
-      if (options.timeout) {
-        abortTimeout = window.setTimeout(function () {
-          if (request.readyState !== 4) {
-            request.timedout = true;
-            request.abort();
-          }
-        }, options.timeout);
-      }
-
-      request.onreadystatechange = function () {
-        // wait until the request completes
-        if (this.readyState !== 4) {
-          return;
-        }
-
-        // clear outstanding timeouts
-        window.clearTimeout(abortTimeout);
-
-        // request timeout
-        if (request.timedout) {
-          return callback.call(this, 'timeout', url);
-        }
-
-        // request aborted or errored
-        if (this.status >= 400 || this.status === 0) {
-          return callback.call(this, true, url);
-        }
-
-        if (this.response) {
-          this.responseTime = new Date().getTime();
-          this.roundTripTime = this.responseTime - this.requestTime;
-          this.bytesReceived = this.response.byteLength || this.response.length;
-          this.bandwidth = Math.floor((this.bytesReceived / this.roundTripTime) * 8 * 1000);
-        }
-
-        return callback.call(this, false, url);
-      };
-
-      var queryString = '';
-      if (typeof data === 'object') {
-        for (var paramName in data) {
-          queryString += (queryString.length === 0 ? '' : '&') + paramName + '=' + encodeURIComponent(data[paramName]);
-        }
-      }
-
-      request.send(queryString);
-      return request;
-    };
-
-    setupTriggers();
+    request.send(queryString);
+    return request;
   };
-  /**
-   * Get default metrix statistics object
-   * @returns {{video: {bandwidth: number}, audio: {bandwidth: number}}}
-   */
-  /*jshint sub:true*/
-  videojs.MediaTechController.prototype['getPlaybackStatistics'] = function () {
-    return {
-      video: {
-        bandwidth: -1
-      },
-      audio: {
-        bandwidth: -1
-      }
-    };
-  };
-  // register the plugin
-  videojs.plugin('metrics', metrics);
+
+  //// register the plugin
+  videojs.options.children.metrics = {};
+  //videojs.plugin('metrics', videojs.Metrics);
+
 })(window, window.videojs);

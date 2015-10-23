@@ -1,38 +1,38 @@
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
  * Licensed under the Apache-2.0 license. */
-(function(window, videojs, qunit) {
+(function (window, videojs, qunit) {
   'use strict';
 
   var realIsHtmlSupported,
-      player,
+    player,
 
-      // local QUnit aliases
-      // http://api.qunitjs.com/
+  // local QUnit aliases
+  // http://api.qunitjs.com/
 
-      // module(name, {[setup][ ,teardown]})
-      module = qunit.module,
-      // test(name, callback)
-      test = qunit.test,
-      // ok(value, [message])
-      ok = qunit.ok,
-      // equal(actual, expected, [message])
-      equal = qunit.equal,
-      // strictEqual(actual, expected, [message])
-      strictEqual = qunit.strictEqual,
-      // deepEqual(actual, expected, [message])
-      deepEqual = qunit.deepEqual,
-      // notEqual(actual, expected, [message])
-      notEqual = qunit.notEqual,
-      // throws(block, [expected], [message])
-      throws = qunit.throws;
+  // module(name, {[setup][ ,teardown]})
+    module = qunit.module,
+  // test(name, callback)
+    test = qunit.test,
+  // ok(value, [message])
+    ok = qunit.ok,
+  // equal(actual, expected, [message])
+    equal = qunit.equal,
+  // strictEqual(actual, expected, [message])
+    strictEqual = qunit.strictEqual,
+  // deepEqual(actual, expected, [message])
+    deepEqual = qunit.deepEqual,
+  // notEqual(actual, expected, [message])
+    notEqual = qunit.notEqual,
+  // throws(block, [expected], [message])
+    throws = qunit.throws;
 
   module('videojs-metrics', {
-    setup: function() {
+    setup: function () {
       // force HTML support so the tests run in a reasonable
       // environment under phantomjs
       realIsHtmlSupported = videojs.Html5.isSupported;
-      videojs.Html5.isSupported = function() {
+      videojs.Html5.isSupported = function () {
         return true;
       };
 
@@ -42,16 +42,13 @@
 
       // create a video.js player
       player = videojs(video);
-
-      // initialize the plugin with the default options
-      player.metrics();
     },
-    teardown: function() {
+    teardown: function () {
       videojs.Html5.isSupported = realIsHtmlSupported;
     }
   });
 
-  test('registers itself', function() {
+  test('registers itself', function () {
     ok(player.metrics, 'registered the plugin');
   });
 })(window, window.videojs, window.QUnit);
