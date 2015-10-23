@@ -236,8 +236,8 @@
     try {
       var metrics = player.techGet('getPlaybackStatistics');
       this.metrics_ = videojs.util.mergeOptions(this.metrics_, metrics);
-      evt.video_bitrate = this.metrics_.video.bandwidth || 0;
-      evt.audio_bitrate = this.metrics_.audio.bandwidth || 0;
+      evt.video_bitrate = this.metrics_.video.bandwidth / 1000 || 0;
+      evt.audio_bitrate = this.metrics_.audio.bandwidth / 1000 || 0;
       var pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
       this.xhr(this.options(), pickedData);
     }
