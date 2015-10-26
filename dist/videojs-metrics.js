@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-10-23
+/*! videojs-metrics - v0.0.0 - 2015-10-26
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -236,8 +236,8 @@
     try {
       var metrics = player.techGet('getPlaybackStatistics');
       this.metrics_ = videojs.util.mergeOptions(this.metrics_, metrics);
-      evt.video_bitrate = this.metrics_.video.bandwidth / 1000 || 0;
-      evt.audio_bitrate = this.metrics_.audio.bandwidth / 1000 || 0;
+      evt.video_bitrate = this.metrics_.video.bandwidth ? (Math.round(this.metrics_.video.bandwidth / 1000)) : -1;
+      evt.audio_bitrate = this.metrics_.audio.bandwidth ? (Math.round(this.metrics_.audio.bandwidth / 1000)) : -1;
       var pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
       this.xhr(this.options(), pickedData);
     }
