@@ -15,7 +15,7 @@
       videojs.Component.call(this, player, options);
       this.browserInfo = videojs.Metrics.getBrowser();
       var source = this.player().manifestUrl || this.player().currentSrc();
-      this.pathUrl = videojs.Metrics.URL_MATCH.exec(source);
+      this.pathUrl = source.match(videojs.Metrics.URL_MATCH);
       this.setupTriggers();
     }
   });
@@ -123,7 +123,7 @@
     'stop': ['timeout', 'frames_dropped']
   };
 
-  videojs.Metrics.URL_MATCH = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*(.+)*/gi;
+  videojs.Metrics.URL_MATCH = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*(.+)*/;
 
   videojs.Metrics.prototype.pathUrl = '';
   videojs.Metrics.prototype.oldType = null;
