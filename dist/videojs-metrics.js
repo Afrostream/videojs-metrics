@@ -130,6 +130,10 @@
   videojs.Metrics.prototype.intervalPing = 0;
   videojs.Metrics.prototype.browserInfo = {};
 
+  videojs.Metrics.prototype.dispose = function (evt) {
+    this.setupTriggers('off');
+  };
+
   videojs.Metrics.prototype.eventHandler = function (evt) {
     var data = {
       type: evt.type
@@ -176,10 +180,12 @@
     this.player().trigger('ping');
   };
 
-  videojs.Metrics.prototype.setupTriggers = function () {
+  videojs.Metrics.prototype.setupTriggers = function (off) {
+    var addOrRemove = off || 'on';
     var events = this.options_.trackEvents;
+    var player = this.player();
     for (var i = events.length - 1; i >= 0; i--) {
-      this.player().on(events[i], videojs.bind(this, this.eventHandler));
+      player[addOrRemove](events[i], videojs.bind(this, this.eventHandler));
     }
   };
 
