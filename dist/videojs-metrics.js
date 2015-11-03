@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-11-02
+/*! videojs-metrics - v0.0.0 - 2015-11-03
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -142,6 +142,9 @@
 
     switch (data.type) {
       case 'error':
+        var error = this.player().error();
+        data.number = error.code;
+        data.message = error.message;
         break;
       case 'dispose':
       case 'ended':
