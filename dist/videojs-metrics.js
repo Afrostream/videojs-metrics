@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-11-03
+/*! videojs-metrics - v0.0.0 - 2015-11-05
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -143,6 +143,10 @@
     switch (data.type) {
       case 'error':
         var error = this.player().error();
+        error = error || {
+            code: -1,
+            message: 'cant get error message'
+          };
         data.number = error.code;
         data.message = error.message;
         break;
@@ -189,6 +193,10 @@
     var events = this.options_.trackEvents;
     var player = this.player();
     for (var i = events.length - 1; i >= 0; i--) {
+      //just call event start only one time
+      if (events[i] === 'firstplay' && addOrRemove === 'on') {
+        addOrRemove = 'one';
+      }
       player[addOrRemove](events[i], videojs.bind(this, this.eventHandler));
     }
   };
@@ -359,6 +367,5 @@
 
   //// register the plugin
   videojs.options.children.metrics = {};
-  //videojs.plugin('metrics', videojs.Metrics);
 
 })(window, window.videojs);
