@@ -15,7 +15,7 @@
       videojs.Component.call(this, player, options);
       this.browserInfo = videojs.Metrics.getBrowser();
       var source = this.player().manifestUrl || this.player().currentSrc();
-      this.pathUrl = source.match(videojs.Metrics.URL_MATCH) || ['', ''];
+      this.pathUrl = source.match(videojs.Metrics.URL_MATCH) || ['undefined', 'undefined'];
       this.setupTriggers();
     }
   });
@@ -235,7 +235,7 @@
     evt.web_browser_version = this.browserInfo.version.toString();
     evt.resolution_size = screen.width + 'x' + screen.height;
     evt.flash_version = videojs.Flash.version().join(',');
-    evt.html5_video = player.tech.el().nodeName === 'VIDEO';//player.techName === 'Html5';
+    evt.html5_video = player.tech ? player.tech.el().nodeName === 'VIDEO' : 'undefined';//player.techName === 'Html5';
     evt.relative_url = this.pathUrl[2];
     evt.timeout = false;
     evt.frames_dropped = 0;
