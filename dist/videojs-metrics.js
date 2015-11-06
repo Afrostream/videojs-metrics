@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-11-05
+/*! videojs-metrics - v0.0.0 - 2015-11-06
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -15,7 +15,7 @@
       videojs.Component.call(this, player, options);
       this.browserInfo = videojs.Metrics.getBrowser();
       var source = this.player().manifestUrl || this.player().currentSrc();
-      this.pathUrl = source.match(videojs.Metrics.URL_MATCH);
+      this.pathUrl = source.match(videojs.Metrics.URL_MATCH) || ['', ''];
       this.setupTriggers();
     }
   });
@@ -130,7 +130,7 @@
   videojs.Metrics.prototype.intervalPing = 0;
   videojs.Metrics.prototype.browserInfo = {};
 
-  videojs.Metrics.prototype.dispose = function (evt) {
+  videojs.Metrics.prototype.dispose = function () {
     this.clearInterval(this.intervalPing);
     this.setupTriggers('off');
   };
@@ -194,10 +194,11 @@
     var player = this.player();
     for (var i = events.length - 1; i >= 0; i--) {
       //just call event start only one time
+      var firstCall = addOrRemove;
       if (events[i] === 'firstplay' && addOrRemove === 'on') {
-        addOrRemove = 'one';
+        firstCall = 'one';
       }
-      player[addOrRemove](events[i], videojs.bind(this, this.eventHandler));
+      player[firstCall](events[i], videojs.bind(this, this.eventHandler));
     }
   };
 
