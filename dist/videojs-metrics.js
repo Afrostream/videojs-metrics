@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2015-11-06
+/*! videojs-metrics - v0.0.0 - 2015-12-07
 * Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -35,10 +35,10 @@
    */
   videojs.Metrics.getBrowser = function () {
     var data = {};
-    var browser = null;
-    var version = null;
-    var os = null;
-    var osVersion = null;
+    var browser = '';
+    var version = '';
+    var os = '';
+    var osVersion = '';
     var parseUserAgent, prepareData, renameOsx, cutSafariVersion;
 
     parseUserAgent = function () {
@@ -63,7 +63,7 @@
 
     prepareData = function () {
       data.browser = browser;
-      data.version = parseInt(version, 10) || null;
+      data.version = parseInt(version, 10) || '';
       data.os = os;
       data.osVersion = osVersion;
     };
@@ -231,8 +231,8 @@
     evt.fqdn = this.pathUrl[1];
     evt.os = this.browserInfo.os;
     evt.os_version = this.browserInfo.osVersion.toString();
-    evt.web_browser = this.browserInfo.browser;
-    evt.web_browser_version = this.browserInfo.version.toString();
+    evt.web_browser = this.browserInfo.browser.toString();
+    evt.web_browser_version = this.browserInfo.version ? this.browserInfo.version.toString() : '';
     evt.resolution_size = screen.width + 'x' + screen.height;
     evt.flash_version = videojs.Flash.version().join(',');
     evt.html5_video = player.tech ? player.tech.el().nodeName === 'VIDEO' : 'undefined';//player.techName === 'Html5';
@@ -242,7 +242,8 @@
     //=== BITDASH
     //bandwidth
     //bitrateIndex
-    //pendingIndex
+    //pend
+    // ingIndex
     //numBitrates
     //bufferLength
     //droppedFrames
