@@ -1,5 +1,5 @@
-/*! videojs-metrics - v0.0.0 - 2015-12-07
-* Copyright (c) 2015 benjipott; Licensed Apache-2.0 */
+/*! videojs-metrics - v0.0.0 - 2016-02-01
+* Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
  * Licensed under the Apache-2.0 license. */
@@ -117,7 +117,7 @@
     'bandwidthIncrease': ['video_bitrate', 'audio_bitrate'],
     'bandwidthDecrease': ['video_bitrate', 'audio_bitrate'],
     'ping': [],
-    'buffering': [],
+    'buffering': ['chunks_from_cdn', 'chunks_from_p2p', 'startup_time'],
     'error': ['number', 'message'],
     'start': ['video_bitrate', 'audio_bitrate', 'os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
     'stop': ['timeout', 'frames_dropped']
@@ -258,6 +258,9 @@
       this.metrics_ = videojs.util.mergeOptions(this.metrics_, metrics);
       evt.video_bitrate = this.metrics_.video.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.video.bandwidth / 1000)) : -1;
       evt.audio_bitrate = this.metrics_.audio.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.audio.bandwidth / 1000)) : -1;
+      evt.chunks_from_cdn = this.metrics_.p2pweb.chunksFromCDN;
+      evt.chunks_from_p2p = this.metrics_.p2pweb.chunksFromP2P;
+      evt.startup_time = this.metrics_.p2pweb.startupTime;
       var pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
       this.xhr(this.options(), pickedData);
     }
