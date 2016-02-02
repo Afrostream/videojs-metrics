@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2016-02-01
+/*! videojs-metrics - v0.0.0 - 2016-02-02
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -116,8 +116,8 @@
   videojs.Metrics.REQUIRED_KEY = {
     'bandwidthIncrease': ['video_bitrate', 'audio_bitrate'],
     'bandwidthDecrease': ['video_bitrate', 'audio_bitrate'],
-    'ping': [],
-    'buffering': ['chunks_from_cdn', 'chunks_from_p2p', 'startup_time'],
+    'ping': ['chunks_from_cdn', 'chunks_from_p2p'],
+    'buffering': ['startup_time'],
     'error': ['number', 'message'],
     'start': ['video_bitrate', 'audio_bitrate', 'os', 'os_version', 'web_browser', 'web_browser_version', 'resolution_size', 'flash_version', 'html5_video', 'relative_url'],
     'stop': ['timeout', 'frames_dropped']
