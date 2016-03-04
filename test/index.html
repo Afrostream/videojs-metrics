@@ -2,20 +2,17 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Video.js Metrics</title>
-  <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
+  <title>videojs-metrics Unit Tests</title>
+  <link rel="stylesheet" href="/node_modules/qunitjs/qunit/qunit.css">
 </head>
 <body>
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
-<script src="../node_modules/qunitjs/qunit/qunit.js"></script>
-<script>
-  test('the environment is sane', function () {
-    ok(true, 'everything is swell');
-  });
-</script>
-<script src="../node_modules/video.js/dist/video-js/video.dev.js"></script>
-<script src="../lib/videojs-metrics.js"></script>
-<script src="videojs-metrics.test.js"></script>
+<script src="/node_modules/sinon/pkg/sinon.js"></script>
+<script src="/node_modules/sinon/pkg/sinon-ie.js"></script>
+<script src="/node_modules/qunitjs/qunit/qunit.js"></script>
+<script>QUnit.config.reorder = false;</script>
+<script src="/node_modules/video.js/dist/video.js"></script>
+<script src="/dist-test/videojs-metrics.js"></script>
 </body>
 </html>
