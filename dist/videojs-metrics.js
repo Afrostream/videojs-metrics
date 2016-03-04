@@ -1,4 +1,4 @@
-/*! videojs-metrics - v0.0.0 - 2016-02-02
+/*! videojs-metrics - v0.0.0 - 2016-03-04
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-metrics - v0.0.0 - 2015-10-7
  * Copyright (c) 2015 benjipott
@@ -42,9 +42,9 @@
     var parseUserAgent, prepareData, renameOsx, cutSafariVersion;
 
     parseUserAgent = function () {
-      var userAgent = navigator.userAgent.toLowerCase(),
-        browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent),
-        osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
+      var userAgent    = navigator.userAgent.toLowerCase(),
+          browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent),
+          osParts      = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
 
       if (!!userAgent.match(/trident\/7\./)) {
         browser = 'ie';
@@ -136,42 +136,42 @@
   };
 
   videojs.Metrics.prototype.eventHandler = function (evt) {
-    var data = {
+    var data   = {
       type: evt.type
     }, skipped = false;
 
     switch (data.type) {
-      case 'error':
-        var error = this.player().error();
-        error = error || {
-            code: -1,
-            message: 'cant get error message'
-          };
-        data.number = error.code;
-        data.message = error.message;
-        break;
-      case 'dispose':
-      case 'ended':
-        if (data.type === this.oldType) {
-          skipped = true;
-        }
-        data.type = 'stop';
-        break;
-      case 'loadstart':
+    case 'error':
+      var error = this.player().error();
+      error = error || {
+          code: -1,
+          message: 'cant get error message'
+        };
+      data.number = error.code;
+      data.message = error.message;
+      break;
+    case 'dispose':
+    case 'ended':
+      if (data.type === this.oldType) {
         skipped = true;
-        break;
-      case 'firstplay':
-        data.type = 'start';
-        this.intervalPing = this.setInterval(this.onPing, videojs.Metrics.INTERVAL_PING);
-        break;
-      case 'waiting':
-        data.type = 'buffering';
-        break;
-      case 'bandwidthIncrease':
-      case 'bandwidthDecrease':
-        break;
-      default:
-        break;
+      }
+      data.type = 'stop';
+      break;
+    case 'loadstart':
+      skipped = true;
+      break;
+    case 'firstplay':
+      data.type = 'start';
+      this.intervalPing = this.setInterval(this.onPing, videojs.Metrics.INTERVAL_PING);
+      break;
+    case 'waiting':
+      data.type = 'buffering';
+      break;
+    case 'bandwidthIncrease':
+    case 'bandwidthDecrease':
+      break;
+    default:
+      break;
     }
 
     this.oldType = data.type;
@@ -313,8 +313,7 @@
     request.open(options.method, url);
     request.url = url;
     request.requestTime = new Date().getTime();
-    //request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     if (options.responseType) {
       request.responseType = options.responseType;
     }
