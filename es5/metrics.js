@@ -191,7 +191,7 @@ var Metrics = (function (_Component) {
 			try {
 				var metrics = player.techGet_('getPlaybackStatistics');
 
-				this.metrics_ = _videoJs2['default'].util.mergeOptions(this.metrics_, metrics);
+				this.metrics_ = _videoJs2['default'].mergeOptions(this.metrics_, metrics);
 				evt['video_bitrate'] = this.metrics_.video.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.video.bandwidth / 1000)) : -1;
 				evt['audio_bitrate'] = this.metrics_.audio.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.audio.bandwidth / 1000)) : -1;
 				evt['chunks_from_cdn'] = this.metrics_.p2pweb.chunksFromCDN;
