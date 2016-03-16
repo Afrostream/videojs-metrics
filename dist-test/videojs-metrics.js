@@ -1461,7 +1461,7 @@ var Metrics = (function (_Component) {
 				evt['chunks_from_p2p'] = this.metrics_.p2pweb.chunksFromP2P;
 				evt['startup_time'] = this.metrics_.p2pweb.startupTime;
 
-				var pickedData = Metrics.pick(evt, this.getRequiredKeys(evt.type));
+				var pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
 				this.xhr(this.options(), pickedData);
 			} catch (e) {

@@ -159,7 +159,7 @@ class Metrics extends Component {
 			evt['chunks_from_p2p'] = this.metrics_.p2pweb.chunksFromP2P;
 			evt['startup_time'] = this.metrics_.p2pweb.startupTime;
 
-			let pickedData = Metrics.pick(evt, this.getRequiredKeys(evt.type));
+			let pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
 			this.xhr(this.options(), pickedData);
 		}
