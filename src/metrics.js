@@ -116,7 +116,7 @@ class Metrics extends Component {
 		}
 
 		Object.keys(obj)
-			.forEach(function (key) {
+			.forEach((key)=> {
 				if (list.indexOf(key) > -1) {
 					result[key] = obj[key];
 				}
@@ -161,7 +161,11 @@ class Metrics extends Component {
 
 			let pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
-			Metrics.xhr(this.options(), pickedData);
+			Metrics.xhr(this.options(), pickedData, (err, resp, body) => {
+				if (err) {
+					throw new Error(err);
+				}
+			});
 		}
 		catch (e) {
 			videojs.log(e);
