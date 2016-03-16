@@ -164,6 +164,7 @@ class Metrics extends Component {
 			let data = {
 				body: pickedData,
 				uri: this.options_.url,
+				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				}

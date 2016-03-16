@@ -211,6 +211,7 @@ var Metrics = (function (_Component) {
 				var data = {
 					body: pickedData,
 					uri: this.options_.url,
+					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'
 					}
