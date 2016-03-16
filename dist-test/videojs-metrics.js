@@ -1302,6 +1302,7 @@ var _utilsJs = require('./utils.js');
 var browser = _interopRequireWildcard(_utilsJs);
 
 var Component = _videoJs2['default'].getComponent('Component');
+var Flash = _videoJs2['default'].getComponent('Flash');
 
 /**
  * Initialize the plugin.
@@ -1445,7 +1446,7 @@ var Metrics = (function (_Component) {
 			evt['web_browser'] = this.browserInfo.browser.toString();
 			evt['web_browser_version'] = this.browserInfo.version ? this.browserInfo.version.toString() : '';
 			evt['resolution_size'] = width + 'x' + height;
-			evt['flash_version'] = _videoJs2['default'].Flash.version().join(',');
+			evt['flash_version'] = Flash.version().join(',');
 			evt['html5_video'] = player.tech ? player.tech.el().nodeName === 'VIDEO' : 'undefined';
 			evt['relative_url'] = this.pathUrl[2];
 			evt['timeout'] = false;
