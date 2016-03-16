@@ -184,7 +184,7 @@ var Metrics = (function (_Component) {
 			var height = _globalWindow2['default'].innerHeight || _globalDocument2['default'].documentElement.clientHeight || _globalDocument2['default'].body.clientHeight;
 
 			// Merge with default options
-			evt['user_id'] = this.options().user_id;
+			evt['user_id'] = this.options_.user_id;
 			evt['fqdn'] = this.pathUrl[1];
 			evt['os'] = this.browserInfo.os;
 			evt['os_version'] = this.browserInfo.osVersion.toString();
@@ -209,7 +209,7 @@ var Metrics = (function (_Component) {
 				var pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
 				var data = {
-					body: pickedData,
+					json: pickedData,
 					uri: this.options_.url,
 					method: 'POST',
 					headers: {
@@ -219,7 +219,7 @@ var Metrics = (function (_Component) {
 
 				Metrics.xhr(data, function (err) {
 					if (err) {
-						throw new Error(err);
+						throw new Error(err.message);
 					}
 				});
 			} catch (e) {

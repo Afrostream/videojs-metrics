@@ -137,7 +137,7 @@ class Metrics extends Component {
 		let height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 		// Merge with default options
-		evt['user_id'] = this.options().user_id;
+		evt['user_id'] = this.options_.user_id;
 		evt['fqdn'] = this.pathUrl[1];
 		evt['os'] = this.browserInfo.os;
 		evt['os_version'] = this.browserInfo.osVersion.toString();
@@ -162,7 +162,7 @@ class Metrics extends Component {
 			let pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
 			let data = {
-				body: pickedData,
+				json: pickedData,
 				uri: this.options_.url,
 				method: 'POST',
 				headers: {
@@ -172,7 +172,7 @@ class Metrics extends Component {
 
 			Metrics.xhr(data, (err) => {
 				if (err) {
-					throw new Error(err);
+					throw new Error(err.message);
 				}
 			});
 		}
