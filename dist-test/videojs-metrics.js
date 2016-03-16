@@ -1463,7 +1463,15 @@ var Metrics = (function (_Component) {
 
 				var pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
-				Metrics.xhr(this.options(), pickedData, function (err, resp, body) {
+				var data = {
+					body: pickedData,
+					uri: this.options_.url,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+
+				Metrics.xhr(data, function (err) {
 					if (err) {
 						throw new Error(err);
 					}

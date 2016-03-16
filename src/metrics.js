@@ -161,7 +161,15 @@ class Metrics extends Component {
 
 			let pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
-			Metrics.xhr(this.options(), pickedData, (err, resp, body) => {
+			let data = {
+				body: pickedData,
+				uri: this.options_.url,
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			};
+
+			Metrics.xhr(data, (err) => {
 				if (err) {
 					throw new Error(err);
 				}
