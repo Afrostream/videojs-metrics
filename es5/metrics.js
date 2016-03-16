@@ -55,7 +55,7 @@ var Metrics = (function (_Component) {
 		var source = this.player().manifestUrl || this.player().currentSrc();
 
 		this.browserInfo = browser.getBrowser();
-		this.pathUrl = source.match(_videoJs2['default'].Metrics.URL_MATCH) || ['undefined', 'undefined'];
+		this.pathUrl = source.match(Metrics.URL_MATCH) || ['undefined', 'undefined'];
 		this.setupTriggers();
 	}
 
@@ -97,7 +97,7 @@ var Metrics = (function (_Component) {
 					break;
 				case 'firstplay':
 					data.type = 'start';
-					this.intervalPing = this.setInterval(this.onPing, _videoJs2['default'].Metrics.INTERVAL_PING);
+					this.intervalPing = this.setInterval(this.onPing, Metrics.INTERVAL_PING);
 					break;
 				case 'waiting':
 					data.type = 'buffering';
@@ -163,7 +163,7 @@ var Metrics = (function (_Component) {
 	}, {
 		key: 'getRequiredKeys',
 		value: function getRequiredKeys(type) {
-			return _videoJs2['default'].Metrics.BASE_KEYS.concat(_videoJs2['default'].Metrics.REQUIRED_KEY[type] || []);
+			return Metrics.BASE_KEYS.concat(Metrics.REQUIRED_KEY[type] || []);
 		}
 	}, {
 		key: 'notify',
@@ -197,7 +197,7 @@ var Metrics = (function (_Component) {
 				evt['chunks_from_p2p'] = this.metrics_.p2pweb.chunksFromP2P;
 				evt['startup_time'] = this.metrics_.p2pweb.startupTime;
 
-				var pickedData = _videoJs2['default'].Metrics.pick(evt, this.getRequiredKeys(evt.type));
+				var pickedData = Metrics.pick(evt, this.getRequiredKeys(evt.type));
 
 				this.xhr(this.options(), pickedData);
 			} catch (e) {

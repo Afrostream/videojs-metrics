@@ -22,7 +22,7 @@ class Metrics extends Component {
 		let source = this.player().manifestUrl || this.player().currentSrc();
 
 		this.browserInfo = browser.getBrowser();
-		this.pathUrl = source.match(videojs.Metrics.URL_MATCH) || ['undefined', 'undefined'];
+		this.pathUrl = source.match(Metrics.URL_MATCH) || ['undefined', 'undefined'];
 		this.setupTriggers();
 	}
 
@@ -61,7 +61,7 @@ class Metrics extends Component {
 			break;
 		case 'firstplay':
 			data.type = 'start';
-			this.intervalPing = this.setInterval(this.onPing, videojs.Metrics.INTERVAL_PING);
+			this.intervalPing = this.setInterval(this.onPing, Metrics.INTERVAL_PING);
 			break;
 		case 'waiting':
 			data.type = 'buffering';
@@ -125,7 +125,7 @@ class Metrics extends Component {
 	}
 
 	getRequiredKeys(type) {
-		return videojs.Metrics.BASE_KEYS.concat(videojs.Metrics.REQUIRED_KEY[type] || []);
+		return Metrics.BASE_KEYS.concat(Metrics.REQUIRED_KEY[type] || []);
 	}
 
 	notify(evt) {
@@ -158,7 +158,7 @@ class Metrics extends Component {
 			evt['chunks_from_p2p'] = this.metrics_.p2pweb.chunksFromP2P;
 			evt['startup_time'] = this.metrics_.p2pweb.startupTime;
 
-			let pickedData = videojs.Metrics.pick(evt, this.getRequiredKeys(evt.type));
+			let pickedData = Metrics.pick(evt, this.getRequiredKeys(evt.type));
 
 			this.xhr(this.options(), pickedData);
 		}
