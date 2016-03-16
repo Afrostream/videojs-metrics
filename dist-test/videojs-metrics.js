@@ -1452,7 +1452,7 @@ var Metrics = (function (_Component) {
 			evt['timeout'] = false;
 			evt['frames_dropped'] = 0;
 			try {
-				var metrics = player.techGet('getPlaybackStatistics');
+				var metrics = player.techGet_('getPlaybackStatistics');
 
 				this.metrics_ = _videoJs2['default'].util.mergeOptions(this.metrics_, metrics);
 				evt['video_bitrate'] = this.metrics_.video.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.video.bandwidth / 1000)) : -1;
