@@ -145,7 +145,7 @@ class Metrics extends Component {
 		evt['web_browser_version'] = this.browserInfo.version ? this.browserInfo.version.toString() : '';
 		evt['resolution_size'] = width + 'x' + height;
 		evt['flash_version'] = Flash.version().join(',');
-		evt['html5_video'] = player.tech ? player.tech.el().nodeName === 'VIDEO' : 'undefined';
+		evt['html5_video'] = player.techName_ ? (player.techName_ !== 'FLash' || player.techName_ !== 'DashAs') : 'undefined';
 		evt['relative_url'] = this.pathUrl[2];
 		evt['timeout'] = false;
 		evt['frames_dropped'] = 0;
