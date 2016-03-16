@@ -1463,7 +1463,7 @@ var Metrics = (function (_Component) {
 
 				var pickedData = this.pick(evt, this.getRequiredKeys(evt.type));
 
-				this.xhr(this.options(), pickedData);
+				Metrics.xhr(this.options(), pickedData);
 			} catch (e) {
 				_videoJs2['default'].log(e);
 			}
