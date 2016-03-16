@@ -8,6 +8,7 @@ import videojs from 'video.js';
 import xhr from 'xhr';
 import window from 'global/window';
 import document from 'global/document';
+import * as browser from './utils.js';
 
 let Component = videojs.getComponent('Component');
 
@@ -20,80 +21,9 @@ class Metrics extends Component {
 		super(player, options);
 		let source = this.player().manifestUrl || this.player().currentSrc();
 
-		this.browserInfo = videojs.Metrics.getBrowser();
+		this.browserInfo = browser.getBrowser();
 		this.pathUrl = source.match(videojs.Metrics.URL_MATCH) || ['undefined', 'undefined'];
 		this.setupTriggers();
-	}
-
-	getBrowser() {
-		let data = {};
-
-		let browser = '';
-
-		let version = '';
-
-		let os = '';
-
-		let osVersion = '';
-
-		let parseUserAgent;
-
-		let prepareData;
-
-		let renameOsx;
-
-		let cutSafariVersion;
-
-		parseUserAgent = () => {
-			let userAgent = navigator.userAgent.toLowerCase();
-
-			let browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent);
-
-			let osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
-
-			if (!userAgent.match(/trident\/7\./)) {
-				browser = 'ie';
-				version = 11;
-			} else if (browserParts && browserParts.length > 2) {
-				browser = browserParts[1];
-				version = browserParts[2];
-			}
-
-			if (osParts && osParts.length > 1) {
-				os = osParts[1];
-			}
-
-			osVersion = navigator.oscpu || navigator.appName;
-		};
-
-		prepareData = () => {
-			data.browser = browser;
-			data.version = parseInt(version, 10) || '';
-			data.os = os;
-			data.osVersion = osVersion;
-		};
-
-		renameOsx = () => {
-			if (os === 'mac') {
-				os = 'osx';
-			}
-		};
-
-		cutSafariVersion = () => {
-			if (os === 'safari') {
-				version = version.substring(0, 1);
-			}
-		};
-
-		parseUserAgent();
-
-		// exception rules
-		renameOsx();
-		cutSafariVersion();
-
-		prepareData();
-
-		return data;
 	}
 
 	dispose() {

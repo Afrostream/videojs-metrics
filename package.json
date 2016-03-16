@@ -86,7 +86,8 @@
     "uglify-js": "^2.5.0",
     "videojs-standard": "^4.0.0",
     "watchify": "^3.6.0",
-    "xhr": "^2.2.0"
+    "xhr": "^2.2.0",
+    "global": "^4.3.0"
   },
   "browserify": {
     "transform": [

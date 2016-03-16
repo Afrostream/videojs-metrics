@@ -1273,6 +1273,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -1295,6 +1297,10 @@ var _globalDocument = require('global/document');
 
 var _globalDocument2 = _interopRequireDefault(_globalDocument);
 
+var _utilsJs = require('./utils.js');
+
+var browser = _interopRequireWildcard(_utilsJs);
+
 var Component = _videoJs2['default'].getComponent('Component');
 
 /**
@@ -1311,84 +1317,12 @@ var Metrics = (function (_Component) {
 		_get(Object.getPrototypeOf(Metrics.prototype), 'constructor', this).call(this, player, options);
 		var source = this.player().manifestUrl || this.player().currentSrc();
 
-		this.browserInfo = _videoJs2['default'].Metrics.getBrowser();
+		this.browserInfo = browser.getBrowser();
 		this.pathUrl = source.match(_videoJs2['default'].Metrics.URL_MATCH) || ['undefined', 'undefined'];
 		this.setupTriggers();
 	}
 
 	_createClass(Metrics, [{
-		key: 'getBrowser',
-		value: function getBrowser() {
-			var data = {};
-
-			var browser = '';
-
-			var version = '';
-
-			var os = '';
-
-			var osVersion = '';
-
-			var parseUserAgent = undefined;
-
-			var prepareData = undefined;
-
-			var renameOsx = undefined;
-
-			var cutSafariVersion = undefined;
-
-			parseUserAgent = function () {
-				var userAgent = navigator.userAgent.toLowerCase();
-
-				var browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent);
-
-				var osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
-
-				if (!userAgent.match(/trident\/7\./)) {
-					browser = 'ie';
-					version = 11;
-				} else if (browserParts && browserParts.length > 2) {
-					browser = browserParts[1];
-					version = browserParts[2];
-				}
-
-				if (osParts && osParts.length > 1) {
-					os = osParts[1];
-				}
-
-				osVersion = navigator.oscpu || navigator.appName;
-			};
-
-			prepareData = function () {
-				data.browser = browser;
-				data.version = parseInt(version, 10) || '';
-				data.os = os;
-				data.osVersion = osVersion;
-			};
-
-			renameOsx = function () {
-				if (os === 'mac') {
-					os = 'osx';
-				}
-			};
-
-			cutSafariVersion = function () {
-				if (os === 'safari') {
-					version = version.substring(0, 1);
-				}
-			};
-
-			parseUserAgent();
-
-			// exception rules
-			renameOsx();
-			cutSafariVersion();
-
-			prepareData();
-
-			return data;
-		}
-	}, {
 		key: 'dispose',
 		value: function dispose() {
 			this.clearInterval(this.intervalPing);
@@ -1595,7 +1529,7 @@ Component.registerComponent('Metrics', Metrics);
 _videoJs2['default'].options.children.metrics = {};
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"global/document":2,"global/window":3,"xhr":7}],15:[function(require,module,exports){
+},{"./utils.js":16,"global/document":2,"global/window":3,"xhr":7}],15:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1630,6 +1564,95 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./metrics":14}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+exports.getBrowser = getBrowser;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _globalDocument = require('global/document');
+
+var _globalDocument2 = _interopRequireDefault(_globalDocument);
+
+var _globalWindow = require('global/window');
+
+var _globalWindow2 = _interopRequireDefault(_globalWindow);
+
+function getBrowser() {
+	var data = {};
+
+	var browser = '';
+
+	var version = '';
+
+	var os = '';
+
+	var osVersion = '';
+
+	var parseUserAgent = undefined;
+
+	var prepareData = undefined;
+
+	var renameOsx = undefined;
+
+	var cutSafariVersion = undefined;
+
+	parseUserAgent = function () {
+		var userAgent = navigator.userAgent.toLowerCase();
+
+		var browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent);
+
+		var osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
+
+		if (!userAgent.match(/trident\/7\./)) {
+			browser = 'ie';
+			version = 11;
+		} else if (browserParts && browserParts.length > 2) {
+			browser = browserParts[1];
+			version = browserParts[2];
+		}
+
+		if (osParts && osParts.length > 1) {
+			os = osParts[1];
+		}
+
+		osVersion = navigator.oscpu || navigator.appName;
+	};
+
+	prepareData = function () {
+		data.browser = browser;
+		data.version = parseInt(version, 10) || '';
+		data.os = os;
+		data.osVersion = osVersion;
+	};
+
+	renameOsx = function () {
+		if (os === 'mac') {
+			os = 'osx';
+		}
+	};
+
+	cutSafariVersion = function () {
+		if (os === 'safari') {
+			version = version.substring(0, 1);
+		}
+	};
+
+	parseUserAgent();
+
+	// exception rules
+	renameOsx();
+	cutSafariVersion();
+
+	prepareData();
+
+	return data;
+}
+
+},{"global/document":2,"global/window":3}],17:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1691,7 +1714,7 @@ _qunit2['default'].test('triger metrics', function (assert) {
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../src/metrics":14,"./player-proxy":17,"global/window":3}],17:[function(require,module,exports){
+},{"../src/metrics":14,"./player-proxy":18,"global/window":3}],18:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1741,7 +1764,7 @@ exports['default'] = proxy;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"node.extend":4}],18:[function(require,module,exports){
+},{"node.extend":4}],19:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1776,4 +1799,4 @@ _qunit2['default'].test('registers itself with video.js', function (assert) {
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../src/plugin":15}]},{},[16,18]);
+},{"../src/plugin":15}]},{},[17,19]);

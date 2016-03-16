@@ -18,6 +18,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -40,6 +42,10 @@ var _globalDocument = require('global/document');
 
 var _globalDocument2 = _interopRequireDefault(_globalDocument);
 
+var _utilsJs = require('./utils.js');
+
+var browser = _interopRequireWildcard(_utilsJs);
+
 var Component = _videoJs2['default'].getComponent('Component');
 
 /**
@@ -56,84 +62,12 @@ var Metrics = (function (_Component) {
 		_get(Object.getPrototypeOf(Metrics.prototype), 'constructor', this).call(this, player, options);
 		var source = this.player().manifestUrl || this.player().currentSrc();
 
-		this.browserInfo = _videoJs2['default'].Metrics.getBrowser();
+		this.browserInfo = browser.getBrowser();
 		this.pathUrl = source.match(_videoJs2['default'].Metrics.URL_MATCH) || ['undefined', 'undefined'];
 		this.setupTriggers();
 	}
 
 	_createClass(Metrics, [{
-		key: 'getBrowser',
-		value: function getBrowser() {
-			var data = {};
-
-			var browser = '';
-
-			var version = '';
-
-			var os = '';
-
-			var osVersion = '';
-
-			var parseUserAgent = undefined;
-
-			var prepareData = undefined;
-
-			var renameOsx = undefined;
-
-			var cutSafariVersion = undefined;
-
-			parseUserAgent = function () {
-				var userAgent = navigator.userAgent.toLowerCase();
-
-				var browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent);
-
-				var osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
-
-				if (!userAgent.match(/trident\/7\./)) {
-					browser = 'ie';
-					version = 11;
-				} else if (browserParts && browserParts.length > 2) {
-					browser = browserParts[1];
-					version = browserParts[2];
-				}
-
-				if (osParts && osParts.length > 1) {
-					os = osParts[1];
-				}
-
-				osVersion = navigator.oscpu || navigator.appName;
-			};
-
-			prepareData = function () {
-				data.browser = browser;
-				data.version = parseInt(version, 10) || '';
-				data.os = os;
-				data.osVersion = osVersion;
-			};
-
-			renameOsx = function () {
-				if (os === 'mac') {
-					os = 'osx';
-				}
-			};
-
-			cutSafariVersion = function () {
-				if (os === 'safari') {
-					version = version.substring(0, 1);
-				}
-			};
-
-			parseUserAgent();
-
-			// exception rules
-			renameOsx();
-			cutSafariVersion();
-
-			prepareData();
-
-			return data;
-		}
-	}, {
 		key: 'dispose',
 		value: function dispose() {
 			this.clearInterval(this.intervalPing);
@@ -339,9 +273,97 @@ Component.registerComponent('Metrics', Metrics);
 // register the plugin
 _videoJs2['default'].options.children.metrics = {};
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"global/document":3,"global/window":4,"xhr":5}],2:[function(require,module,exports){
+},{"./utils.js":2,"global/document":4,"global/window":5,"xhr":6}],2:[function(require,module,exports){
+'use strict';
 
-},{}],3:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+exports.getBrowser = getBrowser;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _globalDocument = require('global/document');
+
+var _globalDocument2 = _interopRequireDefault(_globalDocument);
+
+var _globalWindow = require('global/window');
+
+var _globalWindow2 = _interopRequireDefault(_globalWindow);
+
+function getBrowser() {
+	var data = {};
+
+	var browser = '';
+
+	var version = '';
+
+	var os = '';
+
+	var osVersion = '';
+
+	var parseUserAgent = undefined;
+
+	var prepareData = undefined;
+
+	var renameOsx = undefined;
+
+	var cutSafariVersion = undefined;
+
+	parseUserAgent = function () {
+		var userAgent = navigator.userAgent.toLowerCase();
+
+		var browserParts = /(ie|firefox|chrome|safari|opera)(?:.*version)?(?:[ \/])?([\w.]+)/.exec(userAgent);
+
+		var osParts = /(mac|win|linux|freebsd|mobile|iphone|ipod|ipad|android|blackberry|j2me|webtv)/.exec(userAgent);
+
+		if (!userAgent.match(/trident\/7\./)) {
+			browser = 'ie';
+			version = 11;
+		} else if (browserParts && browserParts.length > 2) {
+			browser = browserParts[1];
+			version = browserParts[2];
+		}
+
+		if (osParts && osParts.length > 1) {
+			os = osParts[1];
+		}
+
+		osVersion = navigator.oscpu || navigator.appName;
+	};
+
+	prepareData = function () {
+		data.browser = browser;
+		data.version = parseInt(version, 10) || '';
+		data.os = os;
+		data.osVersion = osVersion;
+	};
+
+	renameOsx = function () {
+		if (os === 'mac') {
+			os = 'osx';
+		}
+	};
+
+	cutSafariVersion = function () {
+		if (os === 'safari') {
+			version = version.substring(0, 1);
+		}
+	};
+
+	parseUserAgent();
+
+	// exception rules
+	renameOsx();
+	cutSafariVersion();
+
+	prepareData();
+
+	return data;
+}
+},{"global/document":4,"global/window":5}],3:[function(require,module,exports){
+
+},{}],4:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -360,7 +382,7 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":2}],4:[function(require,module,exports){
+},{"min-document":3}],5:[function(require,module,exports){
 (function (global){
 if (typeof window !== "undefined") {
     module.exports = window;
@@ -373,7 +395,7 @@ if (typeof window !== "undefined") {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var once = require("once")
@@ -594,7 +616,7 @@ function _createXHR(options) {
 
 function noop() {}
 
-},{"global/window":4,"is-function":6,"once":7,"parse-headers":10,"xtend":11}],6:[function(require,module,exports){
+},{"global/window":5,"is-function":7,"once":8,"parse-headers":11,"xtend":12}],7:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -611,7 +633,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -632,7 +654,7 @@ function once (fn) {
   }
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -680,7 +702,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":6}],9:[function(require,module,exports){
+},{"is-function":7}],10:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -696,7 +718,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -728,7 +750,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":8,"trim":9}],11:[function(require,module,exports){
+},{"for-each":9,"trim":10}],12:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -749,7 +771,7 @@ function extend() {
     return target
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -782,5 +804,5 @@ _videoJs2['default'].plugin('metrics', plugin);
 exports['default'] = plugin;
 module.exports = exports['default'];
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./metrics":1}]},{},[12])(12)
+},{"./metrics":1}]},{},[13])(13)
 });
