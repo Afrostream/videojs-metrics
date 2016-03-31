@@ -1,33 +1,56 @@
-# Video.js Metrics
+[![Build Status](https://api.travis-ci.org/Afrostream/videojs-metrics.svg?branch=master)](https://travis-ci.org/Afrostream/videojs-metrics)
 
-A revolutionary plugin for video.js
+# Metrics Plugin for video.js
 
-## Getting Started
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-Once you've added the plugin script to your page, you can use it with any video:
 
-```html
-<script src="video.js"></script>
-<script src="videojs-metrics.js"></script>
-<script>
-  videojs(document.querySelector('video')).metrics();
-</script>
+- [Installation](#installation)
+- [Inclusion](#inclusion)
+- [Basic Usage](#basic-usage)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Installation
+
+Install videojs-metrics via npm (preferred):
+
+```sh
+$ npm install videojs-metrics
 ```
 
-There's also a [working example](example.html) of the plugin you can check out if you're having trouble.
+Or Bower:
 
-## Documentation
-### Plugin Options
+```sh
+$ bower install videojs-metrics
+```
 
-You may pass in an options object to the plugin upon initialization. This
-object may contain any of the following properties:
+## Inclusion
 
-#### option
-Type: `boolean`
-Default: true
+Include videojs-metrics on your website using the tool(s) of your choice.
 
-An example boolean option that has no effect.
+The simplest method of inclusion is a `<script>` tag after the video.js `<script>` tag:
 
-## Release History
+```html
+<script src="path/to/video.js/dist/video.js"></script>
+<script src="path/to/videojs-metrics/dist/videojs-metrics.js"></script>
+```
 
- - 0.1.0: Initial release
+When installed via npm, videojs-metrics supports Browserify-based workflows out of the box.
+
+## Basic Usage
+
+For full details on how to use the playlist plugin can be found in [the API documentation](docs/api.md).
+
+```js
+var player = videojs('video');
+
+player.metrics();
+
+```
+
+## License
+
+Apache-2.0. Copyright (c) Brightcove, Inc.
