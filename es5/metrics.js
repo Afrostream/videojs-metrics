@@ -192,8 +192,8 @@ var Metrics = (function (_Component) {
 				var metrics = player.techGet_('getPlaybackStatistics');
 
 				this.metrics_ = _videoJs2['default'].mergeOptions(this.metrics_, metrics);
-				evt['video_bitrate'] = this.metrics_.video.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.video.bandwidth / 1000)) : -1;
-				evt['audio_bitrate'] = this.metrics_.audio.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.audio.bandwidth / 1000)) : -1;
+				evt['video_bitrate'] = this.metrics_.video.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.video.bandwidth)) : -1;
+				evt['audio_bitrate'] = this.metrics_.audio.bandwidth > 0 ? Math.max(-1, Math.round(this.metrics_.audio.bandwidth)) : -1;
 				evt['chunks_from_cdn'] = this.metrics_.p2pweb.chunksFromCDN;
 				evt['chunks_from_p2p'] = this.metrics_.p2pweb.chunksFromP2P;
 				evt['startup_time'] = this.metrics_.p2pweb.startupTime;
