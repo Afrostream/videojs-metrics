@@ -1,6 +1,6 @@
 /**
  * videojs-metrics
- * @version 1.2.0
+ * @version 1.2.1
  * @copyright 2017 Afrostream, Inc.
  * @license Apache-2.0
  */
