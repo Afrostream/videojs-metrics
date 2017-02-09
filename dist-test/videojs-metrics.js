@@ -1532,7 +1532,16 @@ Metrics.METRICS_DATA = {
 
 Metrics.prototype.metrics_ = {
 	video: _videoJs2['default'].mergeOptions({}, Metrics.METRICS_DATA),
-	audio: _videoJs2['default'].mergeOptions({}, Metrics.METRICS_DATA)
+	audio: _videoJs2['default'].mergeOptions({}, Metrics.METRICS_DATA),
+	p2pweb: {
+		chunksFromCDN: 0,
+		chunksFromP2P: 0,
+		chunksSent: 0,
+		bufferLength: -1,
+		swarmSize: -1,
+		p2pRatio: -1,
+		startupTime: -1
+	}
 };
 
 Metrics.xhr = _xhr2['default'];
